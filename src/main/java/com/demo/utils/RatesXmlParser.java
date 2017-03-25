@@ -28,49 +28,55 @@ public class RatesXmlParser {
 
     private RatesXmlParser() {}
 
-    public static void extractDailyRates(String data) throws Exception{
+    public static Void extractDailyRates(String data) {
+        
+        try {
+            Document doc = loadXMLFromString(data);
+            LocalDate ratesDate = null;
+            String currency = null;
+            Double rate;
+            Map<String, Double> rates = new HashMap<>();
 
-        Document doc = loadXMLFromString(data);
-        LocalDate ratesDate = null;
-        String currency = null;
-        Double rate;
-        Map<String, Double> rates = new HashMap<>();
+            // make a node list
+            NodeList cubeNodeList = doc.getElementsByTagName(CUBE_NODE);
+            logger.info("Cube Node List Length :: {}", cubeNodeList.getLength());
+            for (int i = 0; i < cubeNodeList.getLength(); i++) {
+                Node child = cubeNodeList.item(i);
+                if (child.hasAttributes()) {
+                    // Get Cube attributes
+                    NamedNodeMap attributes = child.getAttributes();
 
-        // make a node list
-        NodeList cubeNodeList = doc.getElementsByTagName(CUBE_NODE);
-        logger.info("Cube Node List Length :: {}", cubeNodeList.getLength());
-        for (int i = 0; i < cubeNodeList.getLength(); i++) {
-            Node child = cubeNodeList.item(i);
-            if (child.hasAttributes()) {
-                // Get Cube attributes
-                NamedNodeMap attributes = child.getAttributes();
-
-                for (int j = 0; j < attributes.getLength(); j++) {
-                    Node attribute = attributes.item(j);
-                    if (TIME_ATTRIBUTE.equalsIgnoreCase(attribute.getNodeName())) {
-                        // initialize Date time
-                        ratesDate = LocalDate.parse(attribute.getNodeValue(), DateTimeFormatter.ISO_LOCAL_DATE);
-                        logger.info("Rate Date :: {}", ratesDate.toString());
-                    } else if (CURRENCY_ATTRIBUTE.equalsIgnoreCase(attribute.getNodeName())) {
-                        // initialize currency
-                        currency = attribute.getNodeValue();
-                    } else if (RATE_ATTRIBUTE.equalsIgnoreCase(attribute.getNodeName())) {
-                        // initialize rate
-                        rate = Double.parseDouble(attribute.getNodeValue());
-                        logger.info("Adding values to map, currency :: {}, rate :: {}", currency, rate);
-                        rates.put(currency, rate);
+                    for (int j = 0; j < attributes.getLength(); j++) {
+                        Node attribute = attributes.item(j);
+                        if (TIME_ATTRIBUTE.equalsIgnoreCase(attribute.getNodeName())) {
+                            // initialize Date time
+                            ratesDate = LocalDate.parse(attribute.getNodeValue(), DateTimeFormatter.ISO_LOCAL_DATE);
+                            logger.info("Rate Date :: {}", ratesDate.toString());
+                        } else if (CURRENCY_ATTRIBUTE.equalsIgnoreCase(attribute.getNodeName())) {
+                            // initialize currency
+                            currency = attribute.getNodeValue();
+                        } else if (RATE_ATTRIBUTE.equalsIgnoreCase(attribute.getNodeName())) {
+                            // initialize rate
+                            rate = Double.parseDouble(attribute.getNodeValue());
+                            logger.info("Adding values to map, currency :: {}, rate :: {}", currency, rate);
+                            rates.put(currency, rate);
+                        }
                     }
                 }
             }
+
+            if (ratesDate != null) {
+                // initialize Exchange Rates
+                ExchangeRates.getInstance().addDailyRates(ratesDate, rates);
+            } else {
+                logger.error("Rates date could not be determined");
+            }
+
+        } catch(Exception e) {
+            logger.error("Exception caught while processing rates data. Exception Message :: {}", e.getMessage());
         }
 
-        if (ratesDate != null) {
-            // initialize Exchange Rates
-            ExchangeRates.getInstance().addDailyRates(ratesDate, rates);
-        } else {
-            logger.error("Rates Date could not be determined");
-        }
-
+        return null;
     }
 
     private static Document loadXMLFromString(String xml) throws Exception {

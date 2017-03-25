@@ -7,9 +7,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 
 import static com.demo.utils.Constants.DAILY_RATES_NOT_RETRIEVED;
 
@@ -28,22 +27,15 @@ public class ExchangeRatesDailyJob{
 //    @Scheduled(cron="0 0 12 * * *")
     @Scheduled(cron="0 */1 * * * *")
     public void run() {
-        Future<String> rates = exchangeRatesLookupService.findRates();
+
+        // Initialize method to run asynchronously
+        CompletableFuture<String> completableFuture =  CompletableFuture.supplyAsync(exchangeRatesLookupService::findRates);
+        // Add success callback
+        CompletableFuture<Void> future = completableFuture.thenApply(results -> RatesXmlParser.extractDailyRates(results));
 
         try {
-            while (!rates.isDone()){
-                Thread.sleep(10);
-            }
-
-            String result = rates.get();
-            logger.info("{} result :: {}", this.getClass().getSimpleName(), result);
-
-            if (!StringUtils.isEmpty(result)) {
-                // extract daily currency data
-                RatesXmlParser.extractDailyRates(result);
-            } else {
-                logger.error("Daily async call result is null");
-            }
+            // execute async method
+            future.get();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             logger.error(DAILY_RATES_NOT_RETRIEVED);
