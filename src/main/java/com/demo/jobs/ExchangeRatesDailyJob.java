@@ -29,7 +29,7 @@ public class ExchangeRatesDailyJob{
     public void run() {
 
         // Initialize method to run asynchronously
-        CompletableFuture<String> completableFuture =  CompletableFuture.supplyAsync(exchangeRatesLookupService::findRates);
+        CompletableFuture<String> completableFuture =  CompletableFuture.supplyAsync(exchangeRatesLookupService::findDailyRates);
         // Add success callback
         CompletableFuture<Void> future = completableFuture.thenApply(results -> RatesXmlParser.extractDailyRates(results));
 

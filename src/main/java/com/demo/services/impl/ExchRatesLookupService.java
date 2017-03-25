@@ -1,14 +1,16 @@
 package com.demo.services.impl;
 
 import com.demo.services.IExchRatesLookupService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import static com.demo.utils.Constants.DAILY_RATES_URL;
-
 @Service
 public class ExchRatesLookupService implements IExchRatesLookupService{
+
+    @Value("${daily.rates.url}")
+    private String DAILY_RATES_URL;
 
     private final RestTemplate restTemplate;
 
@@ -17,7 +19,7 @@ public class ExchRatesLookupService implements IExchRatesLookupService{
     }
 
     @Override
-    public String findRates() {
+    public String findDailyRates() {
         return restTemplate.getForObject(DAILY_RATES_URL, String.class);
     }
 }
