@@ -17,7 +17,7 @@ public class ExchangeResource {
     private IExchangeService exchangeService;
 
     @RequestMapping(value = "/rate/{currency}", method = RequestMethod.GET)
-    public @ResponseBody Exchange getRate(@PathVariable("currency") String currency, @RequestParam("date") String date)
+    public Exchange getRate(@PathVariable("currency") String currency, @RequestParam("date") String date)
             throws ExchangeServiceException {
         LocalDate formatDate = LocalDate.parse(date, DateTimeFormatter.ISO_LOCAL_DATE);
         return exchangeService.getExchangeRate(currency, formatDate);

@@ -73,9 +73,68 @@ public class RatesXmlParser {
             }
 
         } catch(Exception e) {
-            logger.error("Exception caught while processing rates data. Exception Message :: {}", e.getMessage());
+            logger.error("Exception caught while processing daily rates data. Exception Message :: {}", e.getMessage());
         }
 
+        // (Void) null reference is returned to allow the use
+        // of CompletableFuture<T> feature
+        return null;
+    }
+
+    public static Void extractHistoricalRates(String data) {
+
+        try {
+            Document doc = loadXMLFromString(data);
+            LocalDate ratesDate = null;
+            String currency = null;
+            Double rate;
+            Map<String, Double> rates = new HashMap<>();
+
+            NodeList cubeNodeList = doc.getElementsByTagName(CUBE_NODE);
+            logger.info("Cube Node List Length :: {}", cubeNodeList.getLength());
+            for (int i = 0; i < cubeNodeList.getLength(); i++) {
+                Node child = cubeNodeList.item(i);
+                if (child.hasAttributes()) {
+                    // Get Cube attributes
+                    NamedNodeMap attributes = child.getAttributes();
+
+                    for (int j = 0; j < attributes.getLength(); j++) {
+                        Node attribute = attributes.item(j);
+                        if (TIME_ATTRIBUTE.equalsIgnoreCase(attribute.getNodeName())) {
+                            if (ratesDate == null) {
+                                // initialize Date time for the first time
+                                ratesDate = LocalDate.parse(attribute.getNodeValue(), DateTimeFormatter.ISO_LOCAL_DATE);
+                                logger.info("Rate Date :: {}", ratesDate.toString());
+                            } else {
+                                logger.info("Adding rates for date :: {}", ratesDate.toString());
+                                // Add Exchange Rates to Map
+                                ExchangeRates.getInstance().addDailyRates(ratesDate, rates);
+                                // Initialize Date time
+                                ratesDate = LocalDate.parse(attribute.getNodeValue(), DateTimeFormatter.ISO_LOCAL_DATE);
+                                // Re-init rates Map
+                                rates = new HashMap<>();
+                            }
+                        } else if (CURRENCY_ATTRIBUTE.equalsIgnoreCase(attribute.getNodeName())) {
+                            // initialize currency
+                            currency = attribute.getNodeValue();
+                        } else if (RATE_ATTRIBUTE.equalsIgnoreCase(attribute.getNodeName())) {
+                            // initialize rate
+                            rate = Double.parseDouble(attribute.getNodeValue());
+                            logger.info("Adding values to map, currency :: {}, rate :: {}", currency, rate);
+                            rates.put(currency, rate);
+                        }
+                    }
+                }
+            }
+
+            logger.info("Adding last historical rates for date :: {}", ratesDate.toString());
+            ExchangeRates.getInstance().addDailyRates(ratesDate, rates);
+        } catch (Exception e) {
+            logger.error("Exception caught while processing historical rates data. Exception Message :: {}", e.getMessage());
+        }
+
+        // (Void) null reference is returned to allow the use
+        // of CompletableFuture<T> feature
         return null;
     }
 
