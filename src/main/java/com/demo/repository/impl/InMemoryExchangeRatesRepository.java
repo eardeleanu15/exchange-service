@@ -1,6 +1,7 @@
-package com.demo.model;
+package com.demo.repository.impl;
 
 import com.demo.exceptions.ExchangeServiceException;
+import com.demo.repository.IExchangeRatesRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,22 +12,22 @@ import java.util.Map;
 import static com.demo.utils.Constants.DATE_RATES_NOT_FOUND;
 import static com.demo.utils.Constants.CURRENCY_RATE_NOT_FOUND;
 
-public class ExchangeRates {
+public class InMemoryExchangeRatesRepository implements IExchangeRatesRepository {
 
-    private static final Logger logger = LoggerFactory.getLogger(ExchangeRates.class);
+    private static final Logger logger = LoggerFactory.getLogger(InMemoryExchangeRatesRepository.class);
 
-    private static ExchangeRates instance = null;
+    private static IExchangeRatesRepository instance = null;
     private Map<LocalDate,Map<String, Double>> rates;
 
-    private ExchangeRates(){
+    private InMemoryExchangeRatesRepository(){
         this.rates = new HashMap<>();
     }
 
-    public static ExchangeRates getInstance() {
+    public static IExchangeRatesRepository getInstance() {
         if (instance == null) {
-            synchronized (ExchangeRates.class) {
+            synchronized (InMemoryExchangeRatesRepository.class) {
                 if (instance == null) {
-                    instance = new ExchangeRates();
+                    instance = new InMemoryExchangeRatesRepository();
                 }
             }
         }

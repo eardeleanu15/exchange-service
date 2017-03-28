@@ -1,6 +1,7 @@
 package com.demo.utils;
 
-import com.demo.model.ExchangeRates;
+import com.demo.repository.IExchangeRatesRepository;
+import com.demo.repository.impl.InMemoryExchangeRatesRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -25,6 +26,8 @@ import static com.demo.utils.Constants.RATE_ATTRIBUTE;
 public class RatesXmlParser {
 
     private static final Logger logger = LoggerFactory.getLogger(RatesXmlParser.class);
+
+    private static final IExchangeRatesRepository exchangeRatesRepository = InMemoryExchangeRatesRepository.getInstance();
 
     private RatesXmlParser() {}
 
@@ -66,8 +69,9 @@ public class RatesXmlParser {
             }
 
             if (ratesDate != null) {
+                logger.info("Adding rates for date :: {}", ratesDate.toString());
                 // initialize Exchange Rates
-                ExchangeRates.getInstance().addDailyRates(ratesDate, rates);
+                exchangeRatesRepository.addDailyRates(ratesDate, rates);
             } else {
                 logger.error("Rates date could not be determined");
             }
@@ -108,7 +112,7 @@ public class RatesXmlParser {
                             } else {
                                 logger.info("Adding rates for date :: {}", ratesDate.toString());
                                 // Add Exchange Rates to Map
-                                ExchangeRates.getInstance().addDailyRates(ratesDate, rates);
+                                exchangeRatesRepository.addDailyRates(ratesDate, rates);
                                 // Initialize Date time
                                 ratesDate = LocalDate.parse(attribute.getNodeValue(), DateTimeFormatter.ISO_LOCAL_DATE);
                                 // Re-init rates Map
@@ -128,7 +132,7 @@ public class RatesXmlParser {
             }
 
             logger.info("Adding last historical rates for date :: {}", ratesDate.toString());
-            ExchangeRates.getInstance().addDailyRates(ratesDate, rates);
+            exchangeRatesRepository.addDailyRates(ratesDate, rates);
         } catch (Exception e) {
             logger.error("Exception caught while processing historical rates data. Exception Message :: {}", e.getMessage());
         }

@@ -28,7 +28,6 @@ public class ExchangeRatesLookupService implements IExchangeRatesLookupService {
 
     @Override
     public String findHistoricalRates() {
-        System.out.println("Historical Rates URL :: " + HISTORICAL_RATES_URL);
         return restTemplate.getForObject(HISTORICAL_RATES_URL, String.class);
     }
 }

@@ -25,7 +25,7 @@ public class ExchangeRatesDailyJob {
     }
 
 //    @Scheduled(cron="0 0 12 * * *")
-    @Scheduled(cron="0 */1 * * * *")
+    @Scheduled(cron="0 */5 * * * *")
     public void run() {
 
         // Initialize method to run asynchronously
