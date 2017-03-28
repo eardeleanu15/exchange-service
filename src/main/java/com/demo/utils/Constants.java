@@ -13,4 +13,5 @@ public class Constants {
     public static final String DATE_RATES_NOT_FOUND = "Could not found rates for date: ";
     public static final String CURRENCY_RATE_NOT_FOUND  = "Rate not found for currency: ";
     public static final String DAILY_RATES_NOT_RETRIEVED = "Daily rates could not be retrieved";
+    public static final String RATE_DATE_MALFORMED_FORMAT = "Rate date should be of form: YYYY-MM-DD";
 }
