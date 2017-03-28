@@ -32,6 +32,7 @@ public class ExchangeResourceTests {
 
     private String currency = "RON";
     private String rateDate = "2017-03-28";
+    private String malformedDate = "2017.03.28";
     private double rate = 4.5529;
 
     private MediaType contentType = new MediaType(MediaType.APPLICATION_JSON.getType(),
@@ -49,12 +50,23 @@ public class ExchangeResourceTests {
      * Expected value: 4.5529;
      */
     @Test
-    public void getRate() throws Exception{
+    public void getRate() throws Exception {
         mockMvc.perform(get("/rest/exchange/rate/" + currency +"?date=" + rateDate))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(contentType))
                 .andExpect(jsonPath("$.currency", is(currency)))
                 .andExpect(jsonPath("$.rate", is(rate)));
+    }
+
+    /**
+     * Unit Test. Using an
+     * un-handled date format.
+     * Expected value: Response Status = 400;
+     */
+    @Test
+    public void malformedDateRequest() throws Exception {
+        mockMvc.perform(get("/rest/exchange/rate/" + currency + "?date=" + malformedDate))
+                .andExpect(status().isBadRequest());
     }
 
 }
