@@ -1,5 +1,8 @@
 package com.demo.model;
 
+/**
+ * Model class to hold exchange data
+ */
 public class Exchange {
 
     private String currency;

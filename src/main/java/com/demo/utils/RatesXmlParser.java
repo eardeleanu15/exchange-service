@@ -23,14 +23,29 @@ import static com.demo.utils.Constants.TIME_ATTRIBUTE;
 import static com.demo.utils.Constants.CURRENCY_ATTRIBUTE;
 import static com.demo.utils.Constants.RATE_ATTRIBUTE;
 
+/**
+ * Utility class that provides the
+ * parsing methods to extract exchange rates
+ * from XML inputs.
+ */
 public class RatesXmlParser {
 
     private static final Logger logger = LoggerFactory.getLogger(RatesXmlParser.class);
 
+    // Retrieve instance of InMemoryExchangeRatesRepository
     private static final IExchangeRatesRepository exchangeRatesRepository = InMemoryExchangeRatesRepository.getInstance();
 
     private RatesXmlParser() {}
 
+    /**
+     * Method used to extract daily rates
+     * from XML input retrieved from European
+     * central Bank.
+     *
+     * Note: (Void) null reference is returned to allow
+     * the use of CompletableFuture<T> feature
+     * @param data
+     */
     public static Void extractDailyRates(String data) {
         
         try {
@@ -40,11 +55,12 @@ public class RatesXmlParser {
             Double rate;
             Map<String, Double> rates = new HashMap<>();
 
-            // make a node list
+            // retrieve all 'Cube' nodes
             NodeList cubeNodeList = doc.getElementsByTagName(CUBE_NODE);
             logger.info("Cube Node List Length :: {}", cubeNodeList.getLength());
             for (int i = 0; i < cubeNodeList.getLength(); i++) {
                 Node child = cubeNodeList.item(i);
+                // if node has attributes - time, currency or rate
                 if (child.hasAttributes()) {
                     // Get Cube attributes
                     NamedNodeMap attributes = child.getAttributes();
@@ -80,11 +96,20 @@ public class RatesXmlParser {
             logger.error("Exception caught while processing daily rates data. Exception Message :: {}", e.getMessage());
         }
 
-        // (Void) null reference is returned to allow the use
-        // of CompletableFuture<T> feature
+        // Note: (Void) null reference is returned to allow
+        // the use of CompletableFuture<T> feature
         return null;
     }
 
+    /**
+     * Method used to extract historical rates
+     * from XML input retrieved from European
+     * central Bank.
+     *
+     * Note: (Void) null reference is returned to allow
+     * the use of CompletableFuture<T> feature
+     * @param data
+     */
     public static Void extractHistoricalRates(String data) {
 
         try {
@@ -94,10 +119,12 @@ public class RatesXmlParser {
             Double rate;
             Map<String, Double> rates = new HashMap<>();
 
+            // retrieve all 'Cube' nodes
             NodeList cubeNodeList = doc.getElementsByTagName(CUBE_NODE);
             logger.info("Cube Node List Length :: {}", cubeNodeList.getLength());
             for (int i = 0; i < cubeNodeList.getLength(); i++) {
                 Node child = cubeNodeList.item(i);
+                // if node has attributes - time, currency or rate
                 if (child.hasAttributes()) {
                     // Get Cube attributes
                     NamedNodeMap attributes = child.getAttributes();
@@ -137,11 +164,19 @@ public class RatesXmlParser {
             logger.error("Exception caught while processing historical rates data. Exception Message :: {}", e.getMessage());
         }
 
-        // (Void) null reference is returned to allow the use
-        // of CompletableFuture<T> feature
+        // Note: (Void) null reference is returned to allow
+        // the use of CompletableFuture<T> feature
         return null;
     }
 
+    /**
+     * Method that allows the wrapping of the
+     * XML input, as String, into a Document object
+     * used by the DOMParser.
+     * @param xml
+     * @return
+     * @throws Exception
+     */
     private static Document loadXMLFromString(String xml) throws Exception {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         factory.setNamespaceAware(true);

@@ -12,6 +12,11 @@ import java.util.concurrent.CompletableFuture;
 
 import static com.demo.utils.Constants.DAILY_RATES_NOT_RETRIEVED;
 
+/**
+ * One time job that executes after application
+ * context is initialized that retrieves historical
+ * exchange rates (up to 90 days in the past from current date)
+ */
 @Component
 public class HistoricalRatesJob implements CommandLineRunner{
 
@@ -26,7 +31,7 @@ public class HistoricalRatesJob implements CommandLineRunner{
 
     @Override
     public void run(String... strings) throws Exception {
-        // Initialize method to run asynchronously
+        // Initialize  findHistoricalRates method to run asynchronously
         CompletableFuture<String> completableFuture =  CompletableFuture.supplyAsync(exchangeRatesLookupService::findHistoricalRates);
         // Add success callback
         CompletableFuture<Void> future = completableFuture.thenApply(results -> RatesXmlParser.extractHistoricalRates(results));

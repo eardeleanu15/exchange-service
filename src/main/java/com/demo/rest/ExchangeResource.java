@@ -25,8 +25,11 @@ public class ExchangeResource {
             throws ExchangeServiceException {
         LocalDate formatDate = null;
         try {
+            // Request date should be of format 'YYYY-MM-DD'
             formatDate = LocalDate.parse(date, DateTimeFormatter.ISO_LOCAL_DATE);
         } catch(DateTimeParseException e) {
+            // Bad Request date format
+            // Setting HTTP Status to 400 - Bad Request
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(RATE_DATE_MALFORMED_FORMAT);
         }
 

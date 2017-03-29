@@ -12,6 +12,11 @@ import java.util.concurrent.CompletableFuture;
 
 import static com.demo.utils.Constants.DAILY_RATES_NOT_RETRIEVED;
 
+/**
+ * Scheduled cron job, that executes on
+ * a daily basis and retrieves current date
+ * exchange rates.
+ */
 @Component
 public class ExchangeRatesDailyJob {
 
@@ -24,11 +29,18 @@ public class ExchangeRatesDailyJob {
         this.exchangeRatesLookupService = exchangeRatesLookupService;
     }
 
-//    @Scheduled(cron="0 0 12 * * *")
+
+
+    /**
+     * Note: For testing purposes the job
+     * is set to run at every 5 minutes from
+     * application start-up.
+     */
+    //    @Scheduled(cron="0 0 12 * * *")
     @Scheduled(cron="0 */5 * * * *")
     public void run() {
 
-        // Initialize method to run asynchronously
+        // Initialize findDailyRates method to run asynchronously
         CompletableFuture<String> completableFuture =  CompletableFuture.supplyAsync(exchangeRatesLookupService::findDailyRates);
         // Add success callback
         CompletableFuture<Void> future = completableFuture.thenApply(results -> RatesXmlParser.extractDailyRates(results));
