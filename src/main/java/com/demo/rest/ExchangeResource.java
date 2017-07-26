@@ -23,7 +23,7 @@ public class ExchangeResource {
     @RequestMapping(value = "/rate/{currency}", method = RequestMethod.GET)
     public ResponseEntity getRate(@PathVariable("currency") String currency, @RequestParam("date") String date)
             throws ExchangeServiceException {
-        LocalDate formatDate = null;
+        LocalDate formatDate;
         try {
             // Request date should be of format 'YYYY-MM-DD'
             formatDate = LocalDate.parse(date, DateTimeFormatter.ISO_LOCAL_DATE);

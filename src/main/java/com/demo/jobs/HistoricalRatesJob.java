@@ -2,6 +2,7 @@ package com.demo.jobs;
 
 import com.demo.services.IExchangeRatesLookupService;
 import com.demo.utils.RatesXmlParser;
+import lombok.extern.log4j.Log4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +19,8 @@ import static com.demo.utils.Constants.DAILY_RATES_NOT_RETRIEVED;
  * exchange rates (up to 90 days in the past from current date)
  */
 @Component
+@Log4j
 public class HistoricalRatesJob implements CommandLineRunner{
-
-    private static final Logger logger = LoggerFactory.getLogger(HistoricalRatesJob.class);
 
     @Autowired
     private final IExchangeRatesLookupService exchangeRatesLookupService;
@@ -41,9 +41,9 @@ public class HistoricalRatesJob implements CommandLineRunner{
             future.get();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            logger.error(DAILY_RATES_NOT_RETRIEVED);
+            log.error(DAILY_RATES_NOT_RETRIEVED);
         } catch (Exception e) {
-            logger.error(DAILY_RATES_NOT_RETRIEVED);
+            log.error(DAILY_RATES_NOT_RETRIEVED);
         }
     }
 }

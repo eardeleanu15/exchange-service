@@ -2,29 +2,27 @@ package com.demo.repository.impl;
 
 import com.demo.exceptions.ExchangeServiceException;
 import com.demo.repository.IExchangeRatesRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.log4j.Log4j;
 
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-import static com.demo.utils.Constants.DATE_RATES_NOT_FOUND;
 import static com.demo.utils.Constants.CURRENCY_RATE_NOT_FOUND;
+import static com.demo.utils.Constants.DATE_RATES_NOT_FOUND;
 
 /**
  * Singleton class that holds, in memory,
  * exchange rates data.
  */
+@Log4j
 public class InMemoryExchangeRatesRepository implements IExchangeRatesRepository {
 
-    private static final Logger logger = LoggerFactory.getLogger(InMemoryExchangeRatesRepository.class);
-
-    private static IExchangeRatesRepository instance = null;
+    private static volatile IExchangeRatesRepository instance = null;
     private Map<LocalDate,Map<String, Double>> rates;
 
     private InMemoryExchangeRatesRepository(){
-        this.rates = new HashMap<>();
+        this.rates = new ConcurrentHashMap<>();
     }
 
     public static IExchangeRatesRepository getInstance() {
@@ -44,12 +42,12 @@ public class InMemoryExchangeRatesRepository implements IExchangeRatesRepository
      * @param date
      * @param rates
      */
-    public synchronized void addDailyRates(LocalDate date, Map<String, Double> rates){
+    public void addDailyRates(LocalDate date, Map<String, Double> rates){
         if (this.rates.get(date) == null) {
             this.rates.put(date, rates);
-            logger.info("Rates for date {} where added in repository", date.toString());
+            log.info(String.format("Rates for date %s where added in repository", date.toString()));
         } else {
-            logger.info("Rates for date - {} - already exists", date.toString());
+            log.info(String.format("Rates for date %s already exists", date.toString()));
         }
     }
 
@@ -65,7 +63,7 @@ public class InMemoryExchangeRatesRepository implements IExchangeRatesRepository
      * @return
      * @throws ExchangeServiceException
      */
-    public synchronized double getRate(LocalDate date, String currency) throws ExchangeServiceException {
+    public double getRate(LocalDate date, String currency) throws ExchangeServiceException {
         Double rate;
         // Get rates for requested date
         Map<String, Double> rates = this.rates.get(date);
